@@ -22,39 +22,48 @@ var standalone = require('../lib/standalone.js');
     test.ifError(value)
 */
 
-
 exports.standalone = {
-	noExecAndNoCommands: function(test){
-		test.expect(1);
-		test.ok(standalone.cmd().match(/ "\(\)"$/), 'should add empty-sequence query if no commands or exec is provided.');
-		test.done();
-	},
-	addsSerializerArgs: function(test){
-		test.expect(1);
-		var cmd = standalone.cmd({serializer: {
-			method: 'html',
-			version: '5'
-		}});
+    addsEmptySequence: function(test){
+        var msg = 'should add empty-sequence query if nothing to do.'
+          , cmd = standalone.cmd()
+          , ok = cmd.match(/ "\(\)"$/)
 
-		test.ok(cmd.match(/ \-smethod=html \-sversion=5 /), 'should add serialization arguments.');
-		test.done();
-	},
-	addsOutputArg: function(test){
-		test.expect(1);
-		var cmd = standalone.cmd({output: 'test.txt'});
-		test.ok(cmd.match(/ \-o "test.txt" /), 'should add output argument.');
-		test.done();
-	},
-	bindsVariables: function(test){
-		test.expect(1);
-		var ok = standalone.cmd({
-			exec: '()',
-			bind: {
-				test: 'test'
-			}
-		}).indexOf('-btest=test') > 0;
-		console.log('a');
-		test.ok(ok, 'should add arguments to bind variables.');
-		test.done();
-	}
+        test.expect(1)
+        test.ok(ok, msg)
+        test.done()
+    },
+    addsSerializerArgs: function(test){
+        var msg = 'should add serialization arguments.'
+          , ser = {
+                method: 'html',
+                version: '5'
+            }
+          , cmd = standalone.cmd({serializer: ser})
+          , ok = cmd.match(/ \-smethod=html \-sversion=5 /)
+
+        test.expect(1)
+        test.ok(ok, msg)
+        test.done()
+    },
+    addsOutputArg: function(test){
+        var msg = 'should add output argument.'
+          , cmd = standalone.cmd({output: 'test.txt'})
+          , ok = cmd.match(/ \-o "test.txt" /)
+
+        test.expect(1)
+        test.ok(ok, msg)
+        test.done()
+    },
+    bindsVariables: function(test){
+        var msg = 'should add arguments to bind variables.'
+          , cmd = standalone.cmd({
+                exec: '()',
+                bind: {test: 'test'}
+            })
+          , ok = cmd.indexOf('-btest=test') > 0
+
+        test.expect(1)
+        test.ok(ok, msg)
+        test.done()
+    }
 };

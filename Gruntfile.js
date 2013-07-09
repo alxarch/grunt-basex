@@ -10,68 +10,69 @@
 
 module.exports = function(grunt) {
 
-  var basexurl = 'http://files.basex.org/releases/BaseX.jar';
+  var basexurl = 'http://files.basex.org/releases/BaseX.jar'
 
   // Project configuration.
   grunt.initConfig({
 
     jshint: {
       all: [
-        'Gruntfile.js',
-        'tasks/*.js',
-        'lib/**/*.js',
-        '<%= nodeunit.tests %>',
-      ],
-      options: {
+        'Gruntfile.js'
+      , 'tasks/*.js'
+      , 'lib/**/*.js'
+      , '<%= nodeunit.tests %>'
+      ]
+    , options: {
         jshintrc: '.jshintrc',
-      },
-    },
+      }
+    }
+
 
     // Before generating any new files, remove any previously-created files.
-    clean: {
-      tests: ['tmp'],
-    },
+  , clean: {
+      tests: ['tmp']
+    }
    
     // Configuration to be run (and then tested).
-    basex: {
+  , basex: {
         modules: {
-          modA: 'test/fixtures/**/*.xqm',
-          options: {
+          modA: 'test/fixtures/**/*.xqm'
+        , options: {
             output: 'tmp/modules.txt'
           }
-        },
-        options: {
+        }
+      , options: {
           vmargs: {}
-        },
-        test_simple: {
+        }
+      , test_simple: {
           options: {
-            exec: '1 to 10',
-            output: 'tmp/simple.txt'
+            exec: '1 to 10'
+          , output: 'tmp/simple.txt'
           }
-        },
-        test_modules: {
+        }
+      , test_modules: {
           options: {
             exec: 'repo:list()',
             output: 'tmp/modules.txt'
           }
-        },
-        test_full: {
+        }
+      , test_full: {
           options: {
             exec: 'test/fixtures/test.xq' 
-            ,input: 'test/fixtures/test.xml'
-            ,debug: false
-            ,lines: true
-            ,output: 'tmp/full.txt'
-            ,writeback: true
-            ,chop: true
-            ,serializer: {
+          , input: 'test/fixtures/test.xml'
+          , debug: false
+          , lines: true
+          , output: 'tmp/full.txt'
+          , writeback: true
+          , chop: true
+          , serializer: {
               method: 'xml'
             }
-            ,bind: {
+          , bind: {
                 test: 'test'
             }
-            ,commands: ['GET createfilter']
-            ,set: {
+          , commands: ['GET createfilter']
+          , set: {
               createfilter: '*.xml,*.xxx',
               addraw: false
             }
@@ -84,40 +85,37 @@ module.exports = function(grunt) {
       tests: ['test/*_test.js']
     }
 
-  });
+  })
 
   // Actually load this plugin's task(s).
-  grunt.loadTasks('tasks');
+  grunt.loadTasks('tasks')
 
   // These plugins provide necessary tasks.
-  grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.loadNpmTasks('grunt-contrib-clean');
-  grunt.loadNpmTasks('grunt-contrib-nodeunit');
+  grunt.loadNpmTasks('grunt-contrib-jshint')
+  grunt.loadNpmTasks('grunt-contrib-clean')
+  grunt.loadNpmTasks('grunt-contrib-nodeunit')
 
   // Whenever the "test" task is run, first clean the "tmp" dir, then run this
   // plugin's task(s), then test the result.
-  grunt.registerTask('test', ['clean', 'install', 'basex', 'nodeunit']);
+  grunt.registerTask('test', ['clean', 'install', 'basex', 'nodeunit'])
 
   // By default, lint and run all tests.
-  grunt.registerTask('default', ['jshint', 'test']);
+  grunt.registerTask('default', ['jshint', 'test'])
 
   grunt.registerTask('install', function(){
     
-    if(grunt.file.exists('basex.jar')){
-      return;
-    }
+    if(grunt.file.exists('basex.jar')) return
 
-    var http = require('http');
-    var fs = require('fs');
-    var done = this.async();
+    var http = require('http')
+      , fs = require('fs')
+      , done = this.async()
+      , file = fs.createWriteStream("basex.jar")
+      , request = http.get(basexurl, function(response) {
+          response.pipe(file)
+          response.on('end', function(){
+            done()
+          })
+        })
+    })
 
-    var file = fs.createWriteStream("basex.jar");
-    var request = http.get(basexurl, function(response) {
-      response.pipe(file);
-      response.on('end', function(){
-        done();
-      });
-    });
-  });
-
-};
+}

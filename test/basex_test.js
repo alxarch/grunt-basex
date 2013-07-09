@@ -25,29 +25,34 @@ var grunt = require('grunt');
 exports.basex = {
   setUp: function(done) {
     // setup here if necessary
-    done();
+    done()
   },
   simple: function(test){
-    test.expect(1);
-    var actual = grunt.file.read('tmp/simple.txt');
-    test.equal(actual, '1 2 3 4 5 6 7 8 9 10', 'should be able to run simple queries.');
-    test.done();
+    var msg = 'should run simple queries.'
+      , actual = grunt.file.read('tmp/simple.txt')
+      , expect = grunt.file.read('test/expect/simple.txt')
+
+    test.expect(1)
+    test.equal(actual, expect)
+    test.done()
   },
   modules: function(test) {
-    test.expect(1);
 
-    var actual = grunt.file.read('tmp/modules.txt');
-    var expected = '<package name="com.example.test" type="Internal"/>';
-    test.equal(actual, expected, 'should install modules locally.');
-    test.done();
+    var msg = 'should install modules locally.'
+      , actual = grunt.file.read('tmp/modules.txt')
+      , expect = grunt.file.read('test/expect/modules.txt')
+
+    test.expect(1)
+    test.equal(actual, expect, msg)
+    test.done()
   },
   full: function(test) {
-    test.expect(1);
+    var msg = 'should get complex tasks done.'
+      , actual = grunt.file.read('tmp/full.txt')
+      , expect = grunt.file.read('test/expect/full.txt')
 
-    var actual = grunt.file.read('tmp/full.txt');
-    var expect = grunt.file.read('test/expect/full.txt');
-        
-    test.equal(actual, expect, 'complex tasks get done');
-    test.done();
+    test.expect(1)
+    test.equal(actual, expect, msg)
+    test.done()
   },
 };
