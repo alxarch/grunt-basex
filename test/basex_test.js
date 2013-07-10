@@ -36,9 +36,20 @@ exports.basex = {
     test.equal(actual, expect)
     test.done()
   },
+  simple_update: function(test){
+    var msg = 'should update documents inplace.'
+      , actual1 = grunt.file.read('tmp/simple_update_src.xml')
+      , actual2 = grunt.file.read('tmp/simple_update_dest.xml')
+      , expect = grunt.file.read('test/expect/simple_update.txt')
+
+    test.expect(2)
+    test.equal(actual1, expect, msg)
+    test.equal(actual2, 'okok', 'Should redirect all other output to specified dest.')
+    test.done()
+  },
   modules: function(test) {
 
-    var msg = 'should install modules locally.'
+    var msg = 'should install modules with basex_modules task.'
       , actual = grunt.file.read('tmp/modules.txt')
       , expect = grunt.file.read('test/expect/modules.txt')
 
@@ -46,13 +57,13 @@ exports.basex = {
     test.equal(actual, expect, msg)
     test.done()
   },
-  full: function(test) {
-    var msg = 'should get complex tasks done.'
-      , actual = grunt.file.read('tmp/full.txt')
-      , expect = grunt.file.read('test/expect/full.txt')
+  // full: function(test) {
+  //   var msg = 'should get complex tasks done.'
+  //     , actual = grunt.file.read('tmp/full.txt')
+  //     , expect = grunt.file.read('test/expect/full.txt')
 
-    test.expect(1)
-    test.equal(actual, expect, msg)
-    test.done()
-  },
+  //   test.expect(1)
+  //   test.equal(actual, expect, msg)
+  //   test.done()
+  // },
 };

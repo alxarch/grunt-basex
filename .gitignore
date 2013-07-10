@@ -1,4 +1,5 @@
 node_modules
-basex.jar
+*.jar
 npm-debug.log
 tmp
+*.log
