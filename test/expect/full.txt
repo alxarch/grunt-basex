@@ -1,2 +1,0 @@
-CREATEFILTER: *.xml,*.xxx
-ok ok ok

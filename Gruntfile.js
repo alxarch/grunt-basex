@@ -13,12 +13,7 @@ module.exports = function(grunt) {
 
   // Project configuration.
   grunt.initConfig({
-    basex_env: {
-        jar: 'basex.jar'
-      , path: 'tmp/basex'
-    }
-
-  , jshint: {
+    jshint: {
       all: [
         'Gruntfile.js'
       , 'tasks/*.js'
@@ -34,7 +29,12 @@ module.exports = function(grunt) {
       , dest: 'tmp/simple_update_src.xml'
       }
     }
-
+  , curl: {
+      basex: {
+        src: 'http://files.basex.org/releases/BaseX.jar',
+        dest: 'basex.jar'
+      }
+  }
     // Before generating any new files, remove any previously-created files.
   , clean: {
       tests: ['tmp', '!tmp/basex', 'tmp/basex/*']
@@ -47,33 +47,36 @@ module.exports = function(grunt) {
       }
     }
   , basex: {
-      simple_query: {
-        options: {
-          xquery: '1 to 10'
-        }
-      , dest: 'tmp/simple.txt'
+      options: {
+        classpath: 'basex.jar'
+      , basexpath: 'tmp/basex'
       }
-    , test_modules: {
+    , simple_query: {
         options: {
-          xquery: 'repo:list()'
+          xquery: '1 to 10',
+          output: 'tmp/simple.txt'
         }
-      , dest: 'tmp/modules.txt'
-    }
-    , simple_update: {
+      }
+    , files_add: {
         options: {
-          update: true
-        , xquery: '(for $n in //* return replace node $n with <replaced/>,db:output("ok"))'
+          xquery: '//text()',
+          output: 'tmp/files.txt'
+        },
+        src: ['test/fixtures/test.xml']
+      }
+    , export: {
+        options: {
+          xquery: 'for $a in //a return replace node $a with <b>{$a/(*,text())}</b>',
+          export: 'tmp/export'
+        },
+        src: ['test/fixtures/test.xml']
+      }
+    , bind: {
+        options: {
+          xquery: 'declare variable $e external; $e'
+        , output: 'tmp/bind.txt'
+        , bind: {e: 'ok'}
         }
-      , files: [
-          {
-            src: 'tmp/simple_update_src.xml'
-          , dest: 'tmp/simple_update_dest.xml'
-          }
-        , {
-            src: 'tmp/simple_update_src.xml'
-          , dest: 'tmp/simple_update_dest.xml'
-          }
-        ]
       }
     }
 
@@ -92,10 +95,11 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-clean')
   grunt.loadNpmTasks('grunt-contrib-copy')
   grunt.loadNpmTasks('grunt-contrib-nodeunit')
+  grunt.loadNpmTasks('grunt-curl')
 
   // Whenever the "test" task is run, first clean the "tmp" dir, then run this
   // plugin's task(s), then test the result.
-  grunt.registerTask('test', ['clean', 'copy:test', 'basex_modules', 'basex', 'nodeunit'])
+  grunt.registerTask('test', ['clean', 'copy:test', 'basex', 'nodeunit'])
 
   // By default, lint and run all tests.
   grunt.registerTask('default', ['jshint', 'test'])

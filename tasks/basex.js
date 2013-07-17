@@ -8,107 +8,66 @@
 
 'use strict';
 
-var f = require('util').format
-  , _ = require('lodash')
-  , fs = require('fs')
-  , path = require('path')
-  , basex = require('basex-standalone')
-
-
 module.exports = function(grunt) {
-    var pkg = grunt.file.readJSON('package.json')
-      , isfile = function(f){ 
-          return f && (typeof f === 'string') &&  (f[f.length - 1] !== '/') && !grunt.file.isDir(f) 
+    
+    var basex = require('basex-standalone')
+      , pkg = grunt.file.readJSON('package.json')
+      , crypto = require('crypto')
+      , _ = require('lodash')
+      , __ = function(){
+            return _(arguments).toArray().flatten().compact()
         }
-      , isdir = function(d){
-          return d && typeof d === 'string' && 
-            (d[d.length - 1] === '/' && !grunt.file.isFile(d))
-        }
 
-    // Setup 'global' environment settings for basex-standalone
-     _.assign(basex.env, grunt.config.get('basex_env') || {})
-    grunt.file.mkdir(basex.env.path)
-
-    grunt.registerMultiTask('basex_modules', 'Installs XQuery modules.', function() {
-
-      var done = this.async()
-        , modules = [].concat(this.files.map(function(f){
-            return f.src
-          }))
-        , install = modules.map(function(m){
-            return f('REPO INSTALL %s', m)
-          })
-
-      basex({ commands: install})
-        .then(function(){
-          done()
-        })
-        .fail(function(error){
-          grunt.log.error(error.message)
-          done(false)
-        })
-    })
-
-    grunt.registerMultiTask('basex', pkg.description, function() {
-
+    grunt.registerMultiTask('basex', pkg.description, function(){
         var done = this.async()
-          , targetopt = this.options()
-          , count = 0
-          , opened = {}
-          , files = this.files
-          , output = function(files, data){
-              if(!_.isArray(files)) files = [files]
+          , opt = this.options()
+          , omit = ['bind', 'run', 'xquery', 'commands', 'input', 'output']
+          , b = basex.partial(_.omit(opt, omit))
+          , job = new basex.Job()
+          , db = opt.db || crypto.randomBytes(32).toString('hex')
 
-              files.forEach(function(f){
-                if(_.has(opened, f)) 
-                  opened[f].write(data)
-                else if(isfile(f)){
-                  grunt.file.write(f, '')
-                  opened[f] = fs.createWriteStream(f)
-                  opened[f].write(data)
-                }
-              })
-            }
-          , end = function(err){
-              _.each(opened, function(ws){ ws.end() })
+        job.bind('db', db)
 
-              if(err instanceof Error) throw err
-              done()
-            }
+        if(opt.modules) job.requires(opt.modules)
 
+        job.bind(opt.bind || {}).check(db)
 
-        if(files.length === 0) files = [{}]
+        this.files.forEach(function(f){
+            var path = __(f.dest)
 
-        files.forEach(function(file){
-          
-          var dst = file.dest || []
-            , src = file.src || []
-            , fileopt = _.assign({}, targetopt, file)
-            , run = grunt.file.expand(fileopt.run || [])
-
-          if(typeof dst === 'string') dst = [dst]
-          if(typeof src === 'string') src = [src]
-          if(run.length === 0) run = [basex.defaults.run]
-          if(src.length === 0) src = [basex.defaults.input]
-
-          src.forEach(function(s){
-            var d = dst.map(function(d){
-                  return isdir(d) ? path.join(d[0], s) : d
-                })
-            
-            run.forEach(function(r){
-              var opt = _.assign({}, fileopt, { input: s, run: r })
-              count++
-              basex(opt)
-              .then(function(data){
-                count--
-
-                output(d, data)
-                if(count <= 0) end()
-              })
-              .fail(end)
+            path.each(function(p){
+                job.import(f.src, p, f.orig)
             })
-          })
+
+            if(path.isEmpty()) job.import(f.src, f.orig)
+               
         })
+
+
+        __(opt.execute).each(job.execute.bind(job))
+        __(opt.xquery).each(job.xquery.bind(job))
+        __(opt.run).each(function(r){
+            __(grunt.file.expand(r)).each(job.run.bind(job))
+        })
+
+        if(opt.export){
+            
+            job.export(opt.export)
+
+        } 
+        if(opt.drop) job.dropdb(db)
+
+        b(job)  
+            .then(function(data){
+                __(opt.output).each(function(f){
+                    grunt.file.write(f, data)
+                })
+                done()
+            })
+            .fail(function(error){
+                grunt.log.error(error)
+                done(false)
+            })
+            .done()
     })
 }
