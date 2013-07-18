@@ -43,8 +43,12 @@ module.exports = function(grunt) {
                
         })
 
-
-        __(opt.execute).each(job.execute.bind(job))
+        __([opt.execute]).each(function(e){
+            if(_.isPlainObject(e)){
+                e = _.extend((new basex.Job()), e)
+            }
+            job.execute(e)
+        })
         __(opt.xquery).each(job.xquery.bind(job))
         __(opt.run).each(function(r){
             __(grunt.file.expand(r)).each(job.run.bind(job))
