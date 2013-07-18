@@ -27,25 +27,34 @@ exports.basex = {
     // setup here if necessary
     done()
   },
-  simple: function(test){
-    var msg = 'should run simple queries.'
-      , actual = grunt.file.read('tmp/simple.txt')
-      , expect = grunt.file.read('test/expect/simple.txt')
+  xquery: function(test){
+    var msg = 'Should run simple queries.'
+      , actual = grunt.file.read('tmp/xquery.txt')
+      , expect = '1 2 3 4 5 6 7 8 9 10'
 
     test.expect(1)
     test.equal(actual, expect)
     test.done()
   },
-  files: function(test){
-    var msg = 'should add files and use them as context.'
-      , actual = grunt.file.read('tmp/files.txt')
+  output: function(test){
+    var msg = 'Should output results in files.'
+      , actual = grunt.file.read('tmp/output.txt')
+      , expect = '1 2 3 4 5 6 7 8 9 10'
+
+    test.expect(1)
+    test.equal(actual, expect)
+    test.done()
+  },
+  import: function(test){
+    var msg = 'Should add files and use them as context.'
+      , actual = grunt.file.read('tmp/import.txt')
 
     test.expect(1)
     test.equal(actual, 'ok')
     test.done()
   },
   export: function(test){
-    var msg = 'should export processed data to a specified directory.'
+    var msg = 'Should export processed data to a specified directory.'
       , actual = grunt.file.read('tmp/export/test.xml')
       , expect = grunt.file.read('test/expect/export.xml')
 
@@ -53,7 +62,16 @@ exports.basex = {
     test.equal(actual, expect)
     test.done()
   },
-  binds: function(test){
+  execute: function(test){
+    var msg = 'Should execute jobs.'
+      , actual = grunt.file.read('tmp/execute.txt')
+      , expect = '1 2 3 4 5 6 7 8 9 10'
+
+    test.expect(1)
+    test.equal(actual, expect)
+    test.done()
+  },
+  bind: function(test){
     var msg = 'should bind external variables.'
       , actual = grunt.file.read('tmp/bind.txt')
 
