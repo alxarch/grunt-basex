@@ -13,6 +13,9 @@ module.exports = function(grunt) {
     var basex = require('basex-standalone')
       , pkg = grunt.file.readJSON('package.json')
       , crypto = require('crypto')
+      , uuid = function(){
+            return crypto.randomBytes(32).toString('hex')
+        }
       , _ = require('lodash')
       , __ = function(){
             return _(arguments).toArray().flatten().compact()
@@ -24,7 +27,7 @@ module.exports = function(grunt) {
           , omit = ['bind', 'run', 'xquery', 'commands', 'input', 'output']
           , b = basex.partial(_.omit(opt, omit))
           , job = new basex.Job()
-          , db = opt.db || crypto.randomBytes(32).toString('hex')
+          , db = opt.db || uuid()
 
         job.bind('db', db)
 
