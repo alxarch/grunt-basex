@@ -33,7 +33,7 @@ module.exports = function(grunt) {
 
         job.bind('db', db)
 
-        if(opt.modules) job.requires(opt.modules)
+        job.requires(grunt.file.expand(opt.modules || []))
 
         job.bind(opt.bind || {}).check(db)
 
@@ -66,6 +66,7 @@ module.exports = function(grunt) {
             job.export(opt.export)
 
         } 
+
         if(opt.drop) job.dropdb(db)
 
         b(job)  
