@@ -24,8 +24,10 @@ module.exports = function(grunt) {
     grunt.registerMultiTask('basex', pkg.description, function(){
         var done = this.async()
           , opt = this.options()
+          , cp = grunt.file.expand(opt.classpath || [])
           , omit = ['bind', 'run', 'xquery', 'commands', 'input', 'output']
-          , b = basex.partial(_.omit(opt, omit))
+          , defaults = _(opt).omit(omit).assign({classpath: cp})
+          , b = basex.partial(defaults.valueOf())
           , job = new basex.Job()
           , db = opt.db || uuid()
 
@@ -52,7 +54,9 @@ module.exports = function(grunt) {
             }
             job.execute(e)
         })
+        
         __(opt.xquery).each(job.xquery.bind(job))
+
         __(opt.run).each(function(r){
             __(grunt.file.expand(r)).each(job.run.bind(job))
         })
