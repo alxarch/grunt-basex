@@ -13,6 +13,9 @@ module.exports = function(grunt) {
     var basex = require('basex-standalone')
       , pkg = grunt.file.readJSON('package.json')
       , crypto = require('crypto')
+      , uuid = function(){
+            return crypto.randomBytes(32).toString('hex')
+        }
       , _ = require('lodash')
       , __ = function(){
             return _(arguments).toArray().flatten().compact()
@@ -21,14 +24,16 @@ module.exports = function(grunt) {
     grunt.registerMultiTask('basex', pkg.description, function(){
         var done = this.async()
           , opt = this.options()
+          , cp = grunt.file.expand(opt.classpath || [])
           , omit = ['bind', 'run', 'xquery', 'commands', 'input', 'output']
-          , b = basex.partial(_.omit(opt, omit))
+          , defaults = _(opt).omit(omit).assign({classpath: cp})
+          , b = basex.partial(defaults.valueOf())
           , job = new basex.Job()
-          , db = opt.db || crypto.randomBytes(32).toString('hex')
+          , db = opt.db || uuid()
 
         job.bind('db', db)
 
-        if(opt.modules) job.requires(opt.modules)
+        job.requires(grunt.file.expand(opt.modules || []))
 
         job.bind(opt.bind || {})
     
@@ -46,9 +51,15 @@ module.exports = function(grunt) {
                
         })
 
-
-        __(opt.execute).each(job.execute.bind(job))
+        __([opt.execute]).each(function(e){
+            if(_.isPlainObject(e)){
+                e = _.extend((new basex.Job()), e)
+            }
+            job.execute(e)
+        })
+        
         __(opt.xquery).each(job.xquery.bind(job))
+
         __(opt.run).each(function(r){
             __(grunt.file.expand(r)).each(job.run.bind(job))
         })

@@ -34,7 +34,7 @@
     "grunt": "~0.4.1",
     "grunt-contrib-copy": "~0.4.1",
     "grunt-curl": "~1.1.1",
-    "basex-standalone": "~0.2.0",
+    "basex-standalone": "git://github.com/alxarch/basex-standalone",
     "lodash": "~1.3.1"
   },
   "peerDependencies": {

@@ -9,7 +9,7 @@
 'use strict';
 
 module.exports = function(grunt) {
-
+  var basex = require('basex-standalone')
 
   // Project configuration.
   grunt.initConfig({
@@ -51,16 +51,27 @@ module.exports = function(grunt) {
         classpath: 'basex.jar'
       , basexpath: 'tmp/basex'
       }
-    , simple_query: {
+    , xquery: {
         options: {
-          xquery: '1 to 10',
-          output: 'tmp/simple.txt'
+          xquery: 'file:write("tmp/xquery.txt", 1 to 10)'
         }
       }
-    , files_add: {
+    , output: {
+        options: {
+          xquery: '1 to 10',
+          output: 'tmp/output.txt'
+        }
+      }
+    , execute: {
+        options: {
+          execute: (new basex.Job()).xquery('1 to 10'),
+          output: 'tmp/execute.txt'
+        }
+      }
+    , import: {
         options: {
           xquery: '//text()',
-          output: 'tmp/files.txt'
+          output: 'tmp/import.txt'
         },
         src: ['test/fixtures/test.xml']
       }
