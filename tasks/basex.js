@@ -30,7 +30,10 @@ module.exports = function(grunt) {
 
         if(opt.modules) job.requires(opt.modules)
 
-        job.bind(opt.bind || {}).check(db)
+        job.bind(opt.bind || {})
+    
+        if(this.files.length > 0)
+            job.check(db)
 
         this.files.forEach(function(f){
             var path = __(f.dest)
@@ -50,11 +53,9 @@ module.exports = function(grunt) {
             __(grunt.file.expand(r)).each(job.run.bind(job))
         })
 
-        if(opt.export){
-            
+        if(opt.export)
             job.export(opt.export)
 
-        } 
         if(opt.drop) job.dropdb(db)
 
         b(job)  
