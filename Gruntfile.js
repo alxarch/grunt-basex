@@ -29,12 +29,6 @@ module.exports = function(grunt) {
       , dest: 'tmp/simple_update_src.xml'
       }
     }
-  , curl: {
-      basex: {
-        src: 'http://files.basex.org/releases/BaseX.jar',
-        dest: 'basex.jar'
-      }
-  }
     // Before generating any new files, remove any previously-created files.
   , clean: {
       tests: ['tmp', '!tmp/basex', 'tmp/basex/*']
@@ -48,8 +42,7 @@ module.exports = function(grunt) {
     }
   , basex: {
       options: {
-        classpath: 'basex.jar'
-      , basexpath: 'tmp/basex'
+        basexpath: 'tmp/basex'
       }
     , xquery: {
         options: {
@@ -106,7 +99,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-clean')
   grunt.loadNpmTasks('grunt-contrib-copy')
   grunt.loadNpmTasks('grunt-contrib-nodeunit')
-  grunt.loadNpmTasks('grunt-curl')
 
   // Whenever the "test" task is run, first clean the "tmp" dir, then run this
   // plugin's task(s), then test the result.
